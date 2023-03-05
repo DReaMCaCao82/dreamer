@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moegga.app.mybatis.Category">
+
+	<select id="selectCategoryNo" parameterType="java.util.Map" resultType="int">
+		SELECT CATEGORYNO FROM CATEGORY 
+		WHERE maincategory=#{mainCategory} AND subcategory=#{subCategory}
+	</select>
+	
+	<select id="selectCategoryNoBySubcategory" parameterType="java.util.Map" resultType="int">
+		SELECT CATEGORYNO FROM CATEGORY 
+		WHERE subcategory=#{subCategory}
+	</select>
+	
+	<select id="selectCategory" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT c.maincategory,c.subcategory FROM CATEGORY c JOIN INTERESTS i ON i.categoryno=c.categoryno 
+	WHERE i.id=#{id}
+	ORDER BY i.INTERESTSNO
+	</select>
+	
+	<select id="selectMainCategory" resultType="java.util.Map">
+	SELECT maincategory FROM CATEGORY GROUP BY MAINCATEGORY
+	</select>
+	
+	<select id="selectSubCategory" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT subcategory FROM CATEGORY WHERE maincategory=#{mainCategory}
+	</select>
+	
+	<select id="selectCategoryOfThisMeeting" parameterType="java.util.Map" resultType="categoryDTO">
+	SELECT * FROM MEETING m JOIN CATEGORY c ON m.categoryno=c.categoryno WHERE m.meetingno=#{meetingNo}
+	</select>
+	
+	<select id="selectCategoryByMeetingNo" parameterType="java.util.Map" resultType="categoryDTO">
+	SELECT * FROM MEETING m JOIN CATEGORY c ON m.categoryno=c.categoryno WHERE meetingno=#{meetingNo}
+	</select>
+	
+	
+</mapper>

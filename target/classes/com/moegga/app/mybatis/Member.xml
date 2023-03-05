@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moegga.app.mybatis.Member">
+
+	<select id="selectMemberList" parameterType="java.util.Map" resultType="memberDTO">
+		SELECT * FROM(SELECT T.*, ROWNUM R FROM(
+		SELECT * FROM MEMBER m JOIN TOWN t on m.id=t.id
+		<if test="town != null">WHERE town=#{town} AND enabled='1'</if>
+		ORDER BY postdate DESC)T)
+		WHERE R BETWEEN #{start} AND #{end}
+	</select>
+	
+	<select id="selectMemberListCount" parameterType="java.util.Map" resultType="int">
+		SELECT COUNT(*) FROM MEMBER m JOIN TOWN t on m.id=t.id
+		<if test="town != null">WHERE town like '%'||#{town}||'%' AND enabled='1'</if>
+		
+	</select>
+	<select id="idCheck" parameterType="java.util.Map" resultType="int">
+		SELECT COUNT(*) FROM MEMBER WHERE id=#{id}
+	</select>
+	
+	<select id="selectAppealList" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT a.img,a.appealno FROM MEMBER m JOIN APPEALIMG a ON m.id=a.id
+	WHERE m.id=#{id}
+	ORDER BY APPEALNO
+	</select>
+
+	<select id="selectAllAppealList" parameterType="java.util.Map" resultType="memberDTO">
+	SELECT a.img,m.id FROM MEMBER m JOIN APPEALIMG a ON m.id=a.id
+	ORDER BY APPEALNO
+	</select>
+	
+	<select id="selectOneById" parameterType="java.util.Map" resultType="memberDTO">
+	SELECT * FROM MEMBER WHERE id=#{id}
+	</select>
+
+	<insert id="join" parameterType="java.util.Map">
+		INSERT INTO MEMBER(ID,PWD,NAME,AGE,GENDER,TEL,POSTDATE,AUTHORITY,ENABLED)
+		VALUES(#{user_id},#{user_password},#{user_name},#{user_age},#{gender},#{tel},DEFAULT,DEFAULT,DEFAULT)
+	</insert>
+	
+	<insert id="insertAppealImg" parameterType="java.util.Map">
+	INSERT INTO APPEALIMG VALUES(SEQ_APPEALIMG.NEXTVAL,#{img},#{id})
+	</insert>
+	
+
+	
+	<delete id="deleteAppealImg" parameterType="java.util.Map">
+	DELETE FROM APPEALIMG WHERE appealno=#{appealNo}
+	</delete>
+	
+	<delete id="deleteAll" parameterType="java.util.Map">
+	DELETE FROM MEMBER WHERE id=#{id}
+	</delete>
+
+	<update id="updateInfo" parameterType="java.util.Map">
+		UPDATE MEMBER
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="img != null">profileimg=#{img},</if>
+			<if test="pr != null">pr=#{pr},</if>
+			<if test="about_me != null">about_me=#{about_me},</if>
+		</trim>
+		WHERE id=#{id}
+	</update>
+	
+	<update id="updatePwd" parameterType="java.util.Map">
+	UPDATE MEMBER SET pwd=#{newpwd} WHERE id=#{id}
+	</update>
+	
+	<update id="infoUpdate" parameterType="java.util.Map">
+	UPDATE MEMBER SET name=#{user_name},age=#{user_age},gender=#{gender},tel=#{tel}
+	WHERE id=#{id}
+	</update>
+	
+	<select id="selectBBSMember" resultType="memberDTO">
+	SELECT * FROM MEMBER WHERE id IN (SELECT DISTINCT id FROM BBS bs
+	JOIN MEETING mt ON bs.meetingno=mt.meetingno)
+	</select>
+	
+</mapper>

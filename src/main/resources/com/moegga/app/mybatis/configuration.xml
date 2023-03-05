@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<!-- myBatis 환경설정파일 
+1]데이타베이스 연결정보 설정 
+2]매퍼파일의 위치정보 설정 -->
+<configuration>
+
+	<properties resource="com/moegga/app/mybatis/dbconnect.properties"/>
+	
+	<typeAliases>
+	<typeAlias alias="memberDTO" type="com.moegga.app.service.MemberDTO" />
+	<typeAlias alias="townDTO" type="com.moegga.app.service.TownDTO" />
+	<typeAlias alias="fundingDTO" type="com.moegga.app.service.FundingDTO" />
+	<typeAlias alias="donationDTO" type="com.moegga.app.service.DonationDTO" />
+	<typeAlias alias="bbsDTO" type="com.moegga.app.service.BBSDTO" />
+	<typeAlias alias="chattingDTO" type="com.moegga.app.service.ChattingDTO" />
+	<typeAlias alias="messageDTO" type="com.moegga.app.service.MessageDTO" />
+	<typeAlias alias="bbsDTO" type="com.moegga.app.service.BBSDTO" />
+	<typeAlias alias="categoryDTO" type="com.moegga.app.service.CategoryDTO" />
+	<typeAlias alias="interestsDTO" type="com.moegga.app.service.InterestsDTO" />
+	<typeAlias alias="meetingDTO" type="com.moegga.app.service.MeetingDTO" />
+	<typeAlias alias="meetingRoleDTO" type="com.moegga.app.service.MeetingRoleDTO" />
+	<typeAlias alias="performanceDTO" type="com.moegga.app.service.PerformanceDTO" />
+	</typeAliases>
+	
+	<mappers>
+		<mapper	resource="com/moegga/app/mybatis/dynamicsql.xml" />
+		<mapper	resource="com/moegga/app/mybatis/Member.xml" />
+		<mapper	resource="com/moegga/app/mybatis/Town.xml" />
+		<mapper	resource="com/moegga/app/mybatis/Category.xml" />
+		<mapper	resource="com/moegga/app/mybatis/Funding.xml" />
+		<mapper	resource="com/moegga/app/mybatis/Admin.xml" />
+		<mapper	resource="com/moegga/app/mybatis/Donation.xml" />
+		<mapper resource="com/moegga/app/mybatis/BBS.xml" />
+		<mapper resource="com/moegga/app/mybatis/Chatting.xml" />
+		<mapper resource="com/moegga/app/mybatis/Interests.xml" />
+		<mapper resource="com/moegga/app/mybatis/Meeting.xml" />
+		<mapper resource="com/moegga/app/mybatis/MeetingRole.xml" />
+		<mapper resource="com/moegga/app/mybatis/BBS_Img.xml" />
+		<mapper resource="com/moegga/app/mybatis/Like_Meeting.xml" />
+		<mapper resource="com/moegga/app/mybatis/Performance.xml" />
+		<mapper resource="com/moegga/app/mybatis/MainPage.xml" />
+
+	</mappers>
+</configuration>

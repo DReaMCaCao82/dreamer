@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moegga.app.mybatis.Funding">
+
+	<select id="selectFundingList" parameterType="java.util.Map" resultType="fundingDTO">
+		SELECT * FROM(SELECT T.*, ROWNUM R FROM(
+		SELECT * FROM
+		FUNDING f JOIN MEETING m ON f.meetingno = m.meetingno
+		JOIN CATEGORY c ON m.categoryno=c.categoryno WHERE f.enabled='1'
+		<if test="town !=null">
+			AND m.town= like '%'||#{town}||'%'
+		</if>
+		ORDER BY f.meetingno DESC)T)
+		WHERE R BETWEEN #{start} AND #{end}
+		
+	</select>
+
+	<select id="selectFundingOne" parameterType="java.util.Map" resultType="fundingDTO">
+		SELECT * FROM FUNDING f
+		JOIN MEETING m ON f.meetingno = m.meetingno
+		JOIN CATEGORY c ON m.categoryno=c.categoryno
+		WHERE f.meetingno=#{meetingNo} AND f.enabled='1'
+
+	</select>
+
+	<select id="getTotalRecordCountFunding" parameterType="java.util.Map" resultType="int">
+		SELECT COUNT(*) FROM FUNDING f JOIN MEETING m ON f.meetingno = m.meetingno
+		WHERE f.enabled='1'
+		<if test="town !=null">
+			AND m.town= like '%'||#{town}||'%'
+		</if>
+		
+	</select>
+
+	<update id="updateAmount" parameterType="java.util.Map">
+		UPDATE FUNDING SET amount=#{amount} WHERE meetingno=#{meetingNo} AND
+		enabled='1'
+	</update>
+	
+	<insert id="insertFunding" parameterType="java.util.Map">
+	INSERT INTO FUNDING VALUES(#{meetingNo},0,#{fundingEnddate},0)
+	</insert>
+
+</mapper>

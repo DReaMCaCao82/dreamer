@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moegga.app.mybatis.Donation">
+
+	<select id="selectDonationList" parameterType="java.util.Map" resultType="donationDTO">
+	 SELECT * FROM DONATION WHERE meetingno=#{meetingNo}
+	</select>
+	
+	<select id="selectDonationOne" parameterType="java.util.Map" resultType="donationDTO">
+	 SELECT * FROM DONATION WHERE id=#{id} AND meetingno=#{meetingNo}
+	</select>
+	
+	<insert id="insertDonation"  parameterType="java.util.Map">
+	 INSERT INTO DONATION VALUES(SEQ_DONATION.NEXTVAL,#{meetingNo},#{id},#{donation})
+	</insert>
+	
+	<update id="updateDonation" parameterType="java.util.Map">
+	 UPDATE DONATION SET donation=#{donation} WHERE id=#{id} AND meetingno=#{meetingNo}
+	</update>
+	
+	
+	
+</mapper>

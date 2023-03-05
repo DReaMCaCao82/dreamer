@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moegga.app.mybatis.Interests">
+	<select id="selectInterestsList" parameterType="java.util.Map" resultType="interestsDTO" >
+	SELECT * FROM INTERESTS WHERE id=#{id} ORDER BY INTERESTSNO
+	</select>
+
+	<insert id="insertInterests" parameterType="java.util.Map">
+	INSERT INTO INTERESTS VALUES(SEQ_INTERESTS.NEXTVAL,#{id},#{categoryNo})
+	</insert>
+	
+	<delete id="deleteInterests" parameterType="java.util.Map">
+	DELETE FROM INTERESTS WHERE id=#{id} AND interestsno=#{interestsNo}
+	</delete>
+	
+	<update id="updateInterests" parameterType="java.util.Map">
+	UPDATE INTERESTS SET categoryno=#{categoryNo} WHERE id=#{id} AND interestsno=#{interestsNo}
+	</update>
+	
+	
+</mapper>

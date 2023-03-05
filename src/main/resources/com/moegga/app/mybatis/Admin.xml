@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moegga.app.mybatis.Admin">
+	<!-- 문의게시판 보기용 -->
+	<resultMap type="bbsDTO" id="bbsDTPResult">
+
+		<result property="bbsNo" column="bbsNO" />
+		<result property="title" column="title" />
+		<result property="contents" column="contents" />
+		<result property="meetingNO" column="meetingNO" />
+		<result property="id" column="id" />
+		<result property="division" column="division" />
+		<result property="subCategoryNo" column="subCategoryNo" />
+		<result property="bbsPostdate" column="bbsPostdate" />
+
+	</resultMap>
+
+
+
+	<!-- 통계용 -->
+	<select id="ageAndGenderSelect" resultType="java.util.Map">
+		select age, gender,
+		count(*) as count from (select floor(age/10)*10 as age, gender from
+		member) group by age,gender order by age
+	</select>
+
+	<select id="categoryAndMeetingSelect" resultType="java.util.Map">
+		<!-- select c.name as maincategory, count(*) as count from meeting m join 
+			subcategory s on m.subcategoryno = s.subcategoryno join maincategory c on 
+			s.categoryno = c.categoryno group by c.name -->
+		select c.maincategory as maincategory, count(*) as count
+		from meeting m
+		join category c on m.categoryno = c.categoryno
+		group by c.maincategory
+
+	</select> <!-- DB변경으로 인한 수정예정 -->
+
+	<select id="subcategoryAndMeetingSelect"
+		resultType="java.util.Map">
+		<!-- select c.name as maincategory,s.name as subcategory, count(*) as count 
+			from meeting m join subcategory s on m.subcategoryno = s.subcategoryno join 
+			maincategory c on s.categoryno = c.categoryno group by c.name, s.name order 
+			by c.name -->
+		select c.maincategory as maincategory,c.subcategory as subcategory,
+		count(*) as count
+		from meeting m join category c on m.categoryno =
+		c.categoryno
+		group by c.subcategory, c.maincategory
+		order by
+		c.maincategory
+
+	</select> <!-- DB변경으로 인한 수정예정 -->
+
+	<select id="townAndMeetingSelect" resultType="java.util.Map">
+		select
+		substr(town,1,instr(town,' ')-1) town , count(*) count from meeting
+		group by town order by town
+	</select>
+
+	<!-- 게시판신고 관리 -->
+	<select id="bbsAcusationSelect" parameterType="java.util.Map"
+		resultType="com.moegga.app.service.BBSAccusationDTO">
+		select * from
+		(select T.*, rownum r from(select * from
+		bbsaccusation order by baccusationno
+		desc) T)
+		where r between #{start}
+		and #{end}
+	</select>
+
+	<select id="totalRecordCountBBSAccusationSelect"
+		resultType="int">
+		select count(*) from bbsaccusation
+	</select>
+
+	<select id="selectBbs" parameterType="String"
+		resultType="java.util.Map">
+		select * from bbs where bbsno = #{bbsno}
+	</select>
+
+	<insert id="bbsAccusationProcessinsert"
+		parameterType="java.util.Map">
+		insert into memberwarning
+		values(seq_memberwarning.nextval,#{reason},#{result},sysdate,#{id})
+	</insert>
+
+	<update id="bbsAccusationProcessupdatemeeting"
+		parameterType="java.util.Map">
+		update member
+		<set>
+			<if test='result.equalsIgnoreCase("무죄")'>enabled=enabled,</if>
+			<if test='result.equalsIgnoreCase("모임 정지")'>enabled=0,</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<update id="bbsAccusationProcessupdateaccusation"
+		parameterType="java.util.Map">
+		update bbsAccusation
+		set process=#{result}
+		where
+		baccusationno = #{baccusationno}
+	</update>
+
+	<!-- 모임신고 관리 -->
+	<select id="meetingAcusationSelect"
+		parameterType="java.util.Map"
+		resultType="com.moegga.app.service.MeetingAccusationDTO">
+		select * from
+		(select T.*, rownum r from(select * from
+		meetingaccusation order by
+		maccusationno desc) T)
+		where r between
+		#{start} and #{end}
+	</select>
+
+	<select id="totalRecordCountMeetingAccusationSelect"
+		resultType="int">
+		select count(*) from meetingaccusation
+	</select>
+
+	<select id="selectMeeting" parameterType="String"
+		resultType="java.util.Map">
+		select * from meeting where meetingno = #{meetingno}
+	</select>
+
+	<insert id="meetingAccusationProcessinsert"
+		parameterType="java.util.Map">
+		insert into meetingwarning
+		values(seq_meetingwarning.nextval,#{reason},#{result},sysdate,#{meetingno})
+	</insert>
+
+	<update id="meetingAccusationProcessupdatemeeting"
+		parameterType="java.util.Map">
+		update meeting
+		<set>
+			<if test='result.equalsIgnoreCase("무죄")'>warningCount=warningCount,</if>
+			<if test='result.equalsIgnoreCase("경고 1회")'>warningCount=warningCount+1,</if>
+			<if test='result.equalsIgnoreCase("경고 2회")'>warningCount=warningCount+2,</if>
+			<if test='result.equalsIgnoreCase("모임 정지")'>enabled=0,</if>
+		</set>
+		where meetingno = #{meetingno}
+	</update>
+
+	<update id="meetingAccusationProcessupdateaccusation"
+		parameterType="java.util.Map">
+		update meetingAccusation
+		set process=#{result}
+		where
+		maccusationno = #{maccusationno}
+	</update>
+
+	<!-- 공지사항 관리용 -->
+	<select id="noticeSelectlist" parameterType="java.util.Map"
+		resultType="java.util.Map">
+		select * from notice
+	</select>
+
+	<select id="getTotalRecordCountNotice" resultType="int">
+		select
+		count(*) from notice
+	</select>
+
+	<insert id="noticeInsert" parameterType="java.util.Map">
+		insert into notice
+		values(seq_notice.nextval,#{title},#{content},1)
+	</insert>
+	<select id="noticeSelectone" parameterType="String"
+		resultType="java.util.Map">
+		select * from notice where noticeno = #{noticeno}
+	</select>
+	<update id="noticeUpdate" parameterType="java.util.Map">
+		update notice set title
+		= #{title}, content = #{content} where noticeno = #{noticeno}
+	</update>
+	<delete id="noticeDelete" parameterType="String">
+		delete from notice where
+		noticeno = #{noticeno}
+	</delete>
+	<update id="noticeEnabledToggle" parameterType="java.util.Map">
+		update notice set
+		enabled = #{enabled} where noticeno = #{noticeno}
+	</update>
+	<!-- 메인에서 공지사항 보여주기 -->
+	<select id="mainNoticeSelectlist" resultType="java.util.Map">
+		select * from
+		notice where enabled = 1
+	</select>
+	<!-- 회원 조회용 -->
+	<select resultType="java.util.Map" id="memberList">
+		select enabled, id, name,
+		tel, postdate from member where enabled=1
+	</select>
+	<!-- 정지 회원 조회용 -->
+	<select resultType="java.util.Map" id="suspendMemberList">
+		select enabled, m.id id,
+		name, reason, mw.postdate suspend from member m join memberwarning mw
+		on m.id=mw.id
+	</select>
+	<!-- 정지 회원 정지해제용 -->
+	<update id="memberSuspendRelease" parameterType="java.util.Map">
+		update member
+		set enabled=1 where id=#{id}
+	</update>
+	<!-- 모임 sadasdasd조회용 -->
+	<select id="meetingList" resultType="java.util.Map">
+		select enabled, meetingno,
+		meetingname, operator, opendate, enddate from meeting where enabled=1
+	</select>
+	<!-- 정지 모임 조회용 -->
+	<select id="suspendMeetingList" resultType="java.util.Map">
+		select enabled,
+		mtw.meetingno meetingno, mt.operator operator, meetingname, reason,
+		mtw.postdate suspend from meeting mt join meetingwarning mtw on
+		mt.meetingno=mtw.meetingno
+	</select>
+	<!-- 정지 모임 정지해제용 -->
+	<update id="meetingSuspendRelease" parameterType="java.util.Map">
+		update meeting
+		set enabled=1 where operator=#{operator}
+	</update>
+	<!-- 정지 회원 검색용 -->
+	<select id="searchMember" resultType="java.util.Map">
+		select enabled, m.id id,
+		name, reason, mw.postdate suspend from member m join memberwarning mw
+		on m.id=mw.id where mw.id = #{search}
+	</select>
+	<!-- 정지 모임 검색용 -->
+	<select id="searchMeeting" resultType="java.util.Map">
+		select enabled,
+		mtw.meetingno meetingno, mt.operator operator, meetingname, reason,
+		mtw.postdate suspend from meeting mt join meetingwarning mtw on
+		mt.meetingno=mtw.meetingno where meetingname=#{search}
+	</select>
+
+	<!--관리자 문의 리스트 -->
+	<select id="BBSSelectList" parameterType="java.util.Map"
+		resultType="java.util.Map">
+
+
+		SELECT * FROM
+		(SELECT T.*,ROWNUM R FROM
+		(SELECT
+		bbsNO,title,m.id,name,BBSPOSTDATE FROM
+		BBS b join MEMBER m ON b.id
+		=m.id where division=3
+		ORDER BY BBSNO DESC) T)
+		WHERE R BETWEEN #{start}
+		AND #{end}
+
+	</select>
+	<!--관리자 문의 보기 -->
+	<select id="BBSSelectOne" parameterType="java.util.Map"
+		resultMap="bbsDTPResult">
+		SELECT b.*,m.id FROM BBS b JOIN MEMBER m ON b.id=m.id
+		WHERE
+		bbsNo=#{bbsNo}
+
+	</select>
+
+
+	<!--관리자 문의 답장용 -->
+	<update id="BBSUpdate" parameterType="java.util.Map">
+		UPDATE BBS SET
+		title=#{title},contents=#{contents}
+		WHERE bbsNo = #{bbsNo}
+
+	</update>
+
+
+
+	<!--관리자 문의 게시판 리스트 읽어오기 -->
+	<select id="fundingadminlist" parameterType="java.util.Map"
+		resultType="com.moegga.app.service.FundingDTO">
+
+		SELECT * FROM
+		(SELECT T.*,ROWNUM R FROM
+		(SELECT f.*,m.meetingname FROM
+		FUNDING f
+		JOIN MEETING m ON f.meetingno = m.meetingno
+		JOIN CATEGORY c ON
+		m.categoryno=c.categoryno
+		WHERE f.enabled=#{enabled}
+		<if test="town !=null">
+			AND m.town=#{town}
+		</if>
+		) T)
+		WHERE R BETWEEN #{start}
+		AND #{end}
+
+
+	</select>
+
+
+	<!--관리자 펀딩 토탈 -->
+	<select id="getfundingtotal" resultType="int">
+		select
+		count(*) from
+		funding where enabled = #{enabled}
+	</select>
+
+	<!--관리자 펀딩 시작 정지 -->
+	<update id="fundingupdate" parameterType="java.util.Map">
+		UPDATE FUNDING SET
+
+		<if test="message == '승인'">
+			enabled = 1
+		</if>
+		<if test="message == '중지'">
+			enabled = 2
+		</if>
+		WHERE meetingNo = #{meetingNo}
+
+	</update>
+	<!--관리자 펀딩삭제용 -->
+	<delete id="fundingDelete" parameterType="java.util.Map">
+	
+		delete from funding where
+		meetingNo = #{meetingNo}
+	</delete>
+	
+
+	<!--관리자 카테고리 리스트 -->
+	<select id="categorylist" parameterType="java.util.Map"
+		resultType="com.moegga.app.service.CategoryDTO">
+
+		SELECT * FROM
+		(SELECT T.*,ROWNUM R FROM
+		(select * from Category ORDER BY
+		maincategory)T)
+		WHERE R BETWEEN #{start}
+		AND #{end}
+
+
+	</select>
+
+
+
+
+	<!--관리자 카테고리 토탈 -->
+	<select id="getcategorytotal" resultType="int">
+		select
+		count(*) from
+		category 
+	</select>
+
+	<insert id="categoryadd" parameterType="java.util.Map">
+		insert into category
+		values(seq_category.nextval,#{maincategory},#{subcategory})
+	</insert>
+
+	<!--관리자 카테고리 삭제 -->
+	<delete id="categoryDelete" parameterType="java.util.Map">
+	
+		delete from category where
+		categoryno = #{categoryno}
+	</delete>
+
+
+</mapper>
+

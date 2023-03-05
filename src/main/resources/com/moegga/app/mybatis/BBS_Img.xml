@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moegga.app.mybatis.BBS_img">
+
+	<select id="selectThisBBSImgList" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT img,imgno FROM BBS_IMG WHERE bbsno=#{bbsno}
+	</select>
+	
+	<insert id="insertBBSImg" parameterType="java.util.Map">
+	INSERT INTO BBS_IMG(imgno,bbsno,img) VALUES(SEQ_BBS_IMG.NEXTVAL,#{bbsno},#{bbsImg})
+	</insert>
+	
+	<select id="thisBBSImgCount" parameterType="java.util.Map" resultType="String">
+	SELECT COUNT(*) AS IMGCOUNT FROM BBS_IMG WHERE bbsno=#{bbsno}
+	</select>
+	
+	<update id="updateBBSImg" parameterType="java.util.Map">
+	UPDATE BBS_IMG SET img=#{img} WHERE imgno=#{imgno}
+	</update>
+	
+	<delete id="deleteBBSImg" parameterType="java.util.Map">
+	DELETE FROM BBS_IMG WHERE imgno=#{imgno}
+	</delete>
+	
+	<select id="selectThisMeetingBBSImgList" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT bs.bbsno,bi.img FROM BBS bs JOIN BBS_IMG bi ON bs.bbsno=bi.bbsno
+	WHERE bs.meetingno=#{meetingNo}
+	</select>
+
+</mapper>

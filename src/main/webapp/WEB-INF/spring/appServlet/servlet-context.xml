@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xsi:schemaLocation="http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.3.xsd
+		http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	
+<!-- 	<resources mapping="/resources/**" location="/resources/" /> -->
+	<default-servlet-handler/> 
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+		<beans:property name="order" value="3"/>
+	</beans:bean>
+	
+	<context:component-scan base-package="com.moegga.app" />
+	<context:property-placeholder location="classpath:com/moegga/app/resource/accusation.properties"/>
+
+	<!-- 다운로드를 위한 빈 등록 (참조- SpringProj ->servlet-context.xml 244번 라인) -->
+	<beans:bean  id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+ 		<beans:property name="maxUploadSize" value="5048576"/><!-- 1M로 설정 --> 	
+ 	</beans:bean>
+ 	
+ 	<beans:bean p:order="1" class="org.springframework.web.servlet.view.BeanNameViewResolver"/>
+ 	
+	<!-- 웹소켓 서버용 빈 생성 (참조- SpringProj ->servlet-context.xml 339번 라인) -->
+	<!-- 웹 소켓: 먼저 pom.xml에 라이브러리 추가 -->
+	<!-- 웹소켓 서버용 빈 만들기 -->
+	<beans:bean id="chatServer" class="com.moegga.app.websocket.WebSocketServer"/>
+	<!-- 웹소켓 서버와 클라이언트에서 접속하는 path와 매핑 -->
+	<websocket:handlers allowed-origins="*">
+		<websocket:mapping handler="chatServer" path="/chat-ws.do"/>
+	</websocket:handlers>
+
+	<!-- tiles사용을 위한 bean등록 (참조- SpringProj ->servlet-context.xml 346번 라인) -->
+	<beans:bean class="org.springframework.web.servlet.view.tiles3.TilesConfigurer">
+			<beans:property name="definitions">
+				<beans:list>
+					<beans:value>/WEB-INF/views/templates/layouts.xml</beans:value>
+				</beans:list>
+			</beans:property>		
+	</beans:bean>
+	<!-- tiles를 처리하도록 또 다른 뷰리졸버 등록 -->	
+	<beans:bean  class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<beans:property name="order" value="2"/>  <!-- .jsp도 view로 사용하기 위해 우선순위를 가장먼저--> 
+		<beans:property name="viewClass" value="org.springframework.web.servlet.view.tiles3.TilesView"/>	
+    </beans:bean>
+    
+    	
+	<!-- NaverLoginBO Class에 대한 Bean설정 추가 -->
+	<beans:bean id="naverLoginBO" class="com.moegga.app.web.NaverLoginBO" />
+
+
+   
+</beans:beans>

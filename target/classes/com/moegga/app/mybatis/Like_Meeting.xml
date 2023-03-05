@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moegga.app.mybatis.Like_Meeting">
+
+
+	<select id="selectMeetingLike" parameterType="java.util.Map" resultType="String">
+		SELECT id FROM LIKE_MEETING WHERE id=#{id} AND meetingno=#{meetingNo}
+	</select>
+	
+	<delete id="deleteBookMark" parameterType="java.util.Map">
+		DELETE LIKE_MEETING WHERE id=#{id} AND meetingno=#{meetingNo}
+	</delete>
+	
+	<insert id="insertMeetingLike" parameterType="java.util.Map">
+		INSERT INTO LIKE_MEETING VALUES(SEQ_LIKE_MEETING.NEXTVAL,#{id},#{meetingNo})
+	</insert>
+
+
+</mapper>

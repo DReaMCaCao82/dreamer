@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moegga.app.mybatis.Chatting">
+
+	<resultMap type="ChattingDTO" id="ChattingDTOResult">
+		<result property="meetingname" column="meetingname"/>
+		<result property="bannerimg" column="bannerimg"/>
+		<result property="chattingName" column="chattingName"/>
+		<result property="currentContent" column="currentContent"/>
+		<result property="postdate" column="postdate"/>
+		<result property="currentMsgMember" column="currentMsgMember"/>
+	</resultMap>
+
+	<select id="chattingList" parameterType="String" resultType="chattingDTO">
+		<!-- to_char(msg.postdate, 'AM HH24:MI') as postdate -->
+		SELECT *
+		FROM (SELECT c.chatno, m.meetingname, m.meetingno, m.bannerimg, c.name chattingName, cm.name
+		FROM meeting m
+		JOIN chatting c ON m.meetingno=c.meetingno
+		JOIN meetingrole mr ON m.meetingno=mr.meetingno
+		JOIN chat_member cm ON mr.roleno=cm.roleno
+		WHERE cm.chatno=c.chatno AND mr.id=#{id})
+		WHERE ROWNUM=1
+	</select>
+	
+	<select id="getNickname" parameterType="String" resultType="String">
+		SELECT name FROM member WHERE id=#{currentUser}
+	</select>
+	
+	<select id="isChatMember" parameterType="String" resultType="int">
+		SELECT COUNT(*) FROM chat_member WHERE roleno = (SELECT roleno FROM meetingrole WHERE id=#{currentUser})
+	</select>
+	
+	<select id="selectRoleno" parameterType="String" resultType="int">
+		SELECT roleno
+		FROM meetingrole m
+		JOIN chatting c ON m.meetingno = c.meetingno
+		WHERE m.id=#{currentUser}
+	</select>
+	
+	<select id="getName" parameterType="int" resultType="String">
+		SELECT name FROM chat_member WHERE roleno=#{roleno}
+	</select>
+	
+	<insert id="chattingMsgInsert" parameterType="java.util.Map">
+		INSERT INTO message VALUES(seq_message.nextval, #{message}, #{cno}, #{roleno}, sysdate, 1)
+	</insert>
+	
+	<select id="chattingMessageList" parameterType="String" resultType="messageDTO">
+		SELECT msg.messageno, msg.content, mr.roleno, mr.name, mr.id, cm.name, mb.profileimg, msg.postdate, msg.division
+		FROM message msg 
+		JOIN meetingrole mr ON msg.roleno=mr.roleno 
+		JOIN chat_member cm ON cm.roleno=msg.roleno
+		JOIN chatting c ON msg.chatno=c.chatno
+		JOIN member mb ON mr.id=mb.id
+		WHERE c.chatno=#{chatno}
+		ORDER BY msg.postdate
+	</select>
+	
+	<select id="newMeetingInfo" parameterType="java.util.Map" resultType="chattingDTO">
+		SELECT m.meetingname, m.meetingno, mr.rolename, mr.roleno, mr.name, c.chatno
+		FROM meeting m
+		JOIN meetingrole mr ON m.meetingno = mr.meetingno
+		JOIN chatting c ON c.meetingno = m.meetingno
+		WHERE m.meetingno = #{meetingno} AND mr.id = #{id}
+	</select>
+	
+	<insert id="createChatRoom" parameterType="java.util.Map">
+		INSERT INTO chatting VALUES(seq_chatting.nextval, #{MEETINGNO}, #{MEETINGNAME})
+	</insert>
+	
+	<insert id="chatMemberInsert" parameterType="java.util.Map">
+		INSERT INTO chat_member VALUES(#{roleNo}, #{chatno}, #{name})
+	</insert>
+	
+	<select id="getChatno" parameterType="String" resultType="int">
+		SELECT chatno FROM chatting WHERE meetingno=#{meetingno}
+	</select>
+	
+	<select id="currentMsgInfo" parameterType="String" resultType="messageDTO">
+		SELECT *
+		FROM (
+	    SELECT msg.content, cm.name, msg.chatno, msg.postdate, msg.division
+	    FROM message msg
+	    JOIN chatting c ON msg.chatno = c.chatno
+	    JOIN chat_member cm ON c.chatno = cm.chatno
+	    JOIN meeting m ON c.meetingno = m.meetingno
+	    WHERE c.chatno = #{chatno}
+	    ORDER BY msg.postdate DESC)
+		WHERE ROWNUM = 1
+	</select>
+	
+	<select id="getMeetingInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT m.meetingno, m.meetingname, mr.roleno FROM meeting m JOIN meetingrole mr ON m.meetingno=mr.meetingno WHERE m.operator=#{id} AND m.meetingno=#{meetingNo} AND mr.id=#{id}
+	</select>
+	
+	<select id="getMeetingInfo_member" parameterType="String" resultType="java.util.Map">
+		SELECT m.meetingno, m.meetingname FROM meeting m JOIN meetingrole mr ON m.meetingno=mr.meetingno WHERE mr.id=#{currentUser}
+	</select>
+	
+	<insert id="insertFileMessage" parameterType="java.util.Map">
+		<!-- INSERT INTO message_file VALUES(seq_message_file.nextval, #{path}, #{filename}, #{cno}, sysdate, #{roleno}) -->
+		INSERT INTO message VALUES(seq_message.nextval, #{filename}, #{cno}, #{roleno}, sysdate, 2)
+	</insert>
+
+</mapper>

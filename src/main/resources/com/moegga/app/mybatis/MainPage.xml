@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moegga.app.mybatis.MainPage">
+
+	<select id="recommendMeeting" parameterType="java.util.Map" resultType="com.moegga.app.service.MeetingDTO">
+      select m.*, mainCategory, subCategory from 
+      meeting m join category c on m.categoryno = c.categoryno
+      <if test="meetingnos.size != 0">
+             where meetingno  in
+             <foreach collection="meetingnos" item="item" index="index" separator="," open="(" close=")">
+                 #{item}
+             </foreach>
+         </if>
+      order by meetingno desc
+   </select>
+	
+	<select id="currentRoleCount" parameterType="int" resultType="int">
+      select count(*) from meetingrole where meetingno = #{meetingno}
+    </select>
+	
+	<select id="upcomming_performance" resultType="java.util.Map">
+		SELECT * FROM (SELECT p.*, TO_CHAR(p.perform_date,'YYYY-MM-DD') perform_date_format, m.operator, m.meetingname
+			FROM performance p
+            JOIN meeting m ON p.meetingno=m.meetingno
+			<![CDATA[WHERE perform_date > sysdate AND perform_date <= (sysdate+7)]]>
+			ORDER BY dbms_random.value)
+		<![CDATA[WHERE ROWNUM <= 6]]>
+	</select>
+	
+    <select id="popular_bbs" resultType="java.util.Map">
+		SELECT * FROM (SELECT DISTINCT b.bbsno, m.meetingname, SUBSTR(b.contents, 0,20) contents, TO_CHAR(b.bbspostdate, 'YYYY-MM-DD') bbspostdate, like_c.like_count
+		FROM bbs b
+		<!-- JOIN meeting m ON b.meetingno=m.meetingno -->
+		JOIN meeting m ON b.id=m.operator
+		JOIN bbs_img bi ON b.bbsno=bi.bbsno
+		JOIN like_bbs lb ON b.bbsno=lb.bbsno
+		JOIN (select bbsno, count(*) like_count from like_bbs group by bbsno having count(*) >= 0 ORDER BY like_count DESC) like_c ON like_c.bbsno = b.bbsno
+    	) <![CDATA[WHERE ROWNUM <= 6]]>
+    </select>
+    
+    <select id="getbbsimage" parameterType="String" resultType="String">
+    	SELECT img FROM bbs_img WHERE bbsno=#{bbsno} and ROWNUM=1
+    </select>
+        
+    <select id="proceed_funding" resultType="java.util.Map">
+    	SELECT * FROM (
+		SELECT m.meetingname, m.bannerImg, m.meetingdescription, m.operator, m.meetingno,
+			extract(year from f.fundingenddate) fyear, TO_CHAR(f.fundingenddate,'Mon','NLS_DATE_LANGUAGE=ENGLISH') fmonth, extract(day from f.fundingenddate) fday
+		FROM funding f JOIN meeting m ON m.meetingno=f.meetingno 
+		WHERE f.enabled=1 AND m.enabled=1 
+		ORDER BY dbms_random.value)
+		<![CDATA[WHERE ROWNUM <= 6]]>
+    </select>
+	
+	
+	
+	
+	
+
+</mapper>

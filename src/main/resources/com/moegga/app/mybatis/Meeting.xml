@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moegga.app.mybatis.Meeting">
+
+	<select id="selectMeetingList" parameterType="java.util.Map" resultType="meetingDTO">
+	SELECT * FROM MEETING m 
+	JOIN CATEGORY c ON m.categoryno=c.categoryno
+	WHERE enabled='1'
+	<if test="town != null">AND town like '%'||#{town}||'%'</if>
+	<if test="subCategory != null">AND subcategory=#{subCategory}</if>
+	</select>
+	
+	<select id="selectMeetingByOperator" parameterType="java.util.Map" resultType="meetingDTO">
+	SELECT * FROM MEETING WHERE operator=#{operator}
+	</select>
+	
+	<select id="selectMeetingById"  parameterType="java.util.Map" resultType="meetingDTO">
+	SELECT * FROM MEETING WHERE operator=#{id}
+	</select>
+	
+	<select id="selectMeetingByNo" parameterType="java.util.Map" resultType="meetingDTO">
+	SELECT * FROM MEETING WHERE meetingno=#{meetingNo}
+	</select>
+	
+	<insert id="insertNewMeeting"  parameterType="java.util.Map" >
+	INSERT INTO MEETING(meetingno,meetingname,operator,opendate,enddate,town,meetingdescription,categoryno,enabled,maxrole,bannerimg)
+	VALUES(SEQ_MEETING.NEXTVAL,#{title},#{operator},SYSDATE,(add_months(SYSDATE,6)),#{addr},#{content},#{categoryNo},'1',#{maxRole},#{bannerImg})
+	</insert>
+	
+	<select id="selectOneMeetingByNoAndId"
+		parameterType="java.util.Map" resultType="meetingDTO">
+		SELECT * FROM MEETING m
+		JOIN MEETINGROLE mr ON m.meetingno=mr.meetingno
+		JOIN CATEGORY c ON c.categoryno=m.categoryno
+		where id=#{id} AND m.meetingno=#{meetingNo}
+	</select>
+
+	<select id="selectJoinedMeetingList" parameterType="java.util.Map" resultType="meetingDTO">
+	SELECT * FROM MEETING m 
+	JOIN MEETINGROLE mr ON m.meetingno=mr.meetingno
+	JOIN CATEGORY c ON c.categoryno=m.categoryno 
+	where id=#{id}
+	</select>
+	
+	<select id="selectMeetingAll" parameterType="java.util.Map" resultType="meetingDTO">
+	SELECT * FROM MEETING m 
+	JOIN MEETINGROLE mr ON m.meetingno=mr.meetingno
+	JOIN CATEGORY c ON c.categoryno=m.categoryno 
+	</select>
+	
+	<select id="selectBookMarkMeetingList" parameterType="java.util.Map" resultType="meetingDTO">
+	SELECT * FROM MEETING m 
+	JOIN LIKE_MEETING lm ON m.meetingno=lm.meetingno
+	JOIN CATEGORY c ON m.categoryno=c.categoryno
+	WHERE id=#{id}
+	</select>
+	
+	<update id="updateMeetingByOperator" parameterType="java.util.Map">
+	UPDATE MEETING 
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="bannerImg != null">bannerimg=#{bannerImg},</if>
+			<if test="title != null">meetingname=#{title},</if>
+			<if test="addr != null">town=#{addr},</if>
+			<if test="content != null">meetingdescription=#{content},</if>
+			<if test="categoryNo != null">categoryno=#{categoryNo},</if>
+			<if test="maxRole != null">maxrole=#{maxRole},</if>
+		</trim>
+	 WHERE operator=#{operator}
+	</update>
+	
+	<delete id="deleteMeeting" parameterType="java.util.Map">
+	DELETE FROM meeting WHERE meetingno=#{meetingNo}
+	</delete>
+	
+	<select id="selectMeetingByMainCategory" parameterType="java.util.Map" resultType="meetingDTO">
+	SELECT * FROM MEETING m JOIN CATEGORY c
+	ON m.categoryno=c.categoryno
+	WHERE enabled='1'
+	AND c.maincategory=#{mainCategory}
+	</select>
+	
+	<select id="selectAllMeetingList" parameterType="java.util.Map" resultType="meetingDTO">
+	SELECT * FROM MEETING m 
+	JOIN CATEGORY c ON m.categoryno=c.categoryno
+	WHERE enabled='1'
+	</select>
+	
+</mapper>
+

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+	<!-- template에 최상위 페이지명 -->
+	<definition name="layouts" template="/WEB-INF/views/templates/Layouts.jsp">
+		<put-attribute name="top" value="/WEB-INF/views/templates/Top.jsp" />
+		<!-- 내용은 동적으로 변하기때문에 value에 ""지정 -->
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/templates/Footer.jsp" />
+	</definition>
+	<definition name="*.tiles" extends="layouts">
+		<!-- 와일드 카드 * 이 {1}에 대입됨 -->
+		<!-- 즉 컨트롤러에서 index.tiles로 리턴하면 index가 {1}로 치환되서 index.jsp가 보여짐 -->
+		<!-- *.tiles는 임의로 설정 가능 즉 *.daum로 가능 혹은 *.spring등 단 jsp는 제외 -->
+		<put-attribute name="body" value="/WEB-INF/views/{1}.jsp" />
+		<!--만약 /WEB-INF/밑에 jsp가 있다면 <put-attribute name="body" value="/WEB-INF/{1}.jsp"/> 
+			컨틀로러 클래스에서는 return "/WEB-INF/Board/List.tiles"인경우 /WEB-INF생략 -->
+	</definition>
+	<!-- /*/*.tiles 는 불가 즉 *앞에 /를 붙이지 않는다 -->
+	<definition name="*/*.tiles" extends="layouts">
+		<put-attribute name="body" value="/WEB-INF/views/{1}/{2}.jsp" />
+	</definition>
+
+
+	<definition name="*/*/*.tiles" extends="layouts">
+		<put-attribute name="body" value="/WEB-INF/views/{1}/{2}/{3}.jsp" />
+
+	</definition>
+	
+	<definition name="*/*/*/*.tiles" extends="layouts">
+		<put-attribute name="body" value="/WEB-INF/views/{1}/{2}/{3}/{4}.jsp" />
+
+	</definition>
+
+
+	<!-- 모임 상세보기 -->
+	<definition name="meetingView" template="/WEB-INF/views/meeting/meetingViewLayout.jsp">
+		<put-attribute name="top" value="/WEB-INF/views/templates/Top.jsp" />
+		<put-attribute name="meetingtop" value="/WEB-INF/views/meeting/meetingViewTop.jsp" />
+		<put-attribute name="content" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/templates/Footer.jsp" />
+	</definition>
+	
+	<definition name="*.meetingViewTiles" extends="meetingView">
+		<put-attribute name="content" value="/WEB-INF/views/meeting/{1}.jsp"/>
+	</definition>
+
+	<definition name="*/*.meetingViewTiles" extends="meetingView">
+		<put-attribute name="content" value="/WEB-INF/views/meeting/{1}/{2}.jsp" />
+	</definition>
+
+	<definition name="*/*/*.meetingViewTiles" extends="meetingView">
+		<put-attribute name="content" value="/WEB-INF/views/meeting/{1}/{2}/{3}.jsp" />
+	</definition>
+	
+	<definition name="*/*/*/*.meetingViewTiles" extends="meetingView">
+		<put-attribute name="content" value="/WEB-INF/views/meeting/{1}/{2}/{3}/{4}.jsp" />
+	</definition>	
+
+	
+	<!-- 관리자 페이지 타일즈 -->
+	<definition name="adminLayouts" template="/WEB-INF/views/templates/AdminLayout.jsp">
+		<put-attribute name="admintop" value="/WEB-INF/views/templates/AdminTop.jsp" />
+		<!-- 내용은 동적으로 변하기때문에 value에 ""지정 -->
+		<put-attribute name="adminbody" value="" />
+		<put-attribute name="adminfooter" value="/WEB-INF/views/templates/AdminFooter.jsp" />
+	</definition>
+	<definition name="*.adminTiles" extends="adminLayouts">
+		
+		<put-attribute name="adminbody" value="/WEB-INF/views/{1}.jsp" />
+		
+	</definition>
+	<!-- /*/*.tiles 는 불가 즉 *앞에 /를 붙이지 않는다 -->
+	<definition name="*/*.adminTiles" extends="adminLayouts">
+		<put-attribute name="adminbody" value="/WEB-INF/views/{1}/{2}.jsp" />
+	</definition>
+
+
+	<definition name="*/*/*.adminTiles" extends="adminLayouts">
+		<put-attribute name="adminbody" value="/WEB-INF/views/{1}/{2}/{3}.jsp" />
+
+	</definition>
+	
+	
+
+</tiles-definitions>
